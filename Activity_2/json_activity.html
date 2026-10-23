@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Learning Models</title>
+    <meta name="description" content="Basic information about the main types of artificial intelligence learning models.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(145deg, #040407 0%, #0d0611 60%, #1a081c 100%);
+            --border: rgba(255, 255, 255, 0.07);
+            --pink: #ff2e92;
+            --cyan: #00f0ff;
+            --accent: var(--pink);
+            --text-main: #f4f4f6;
+            --text-muted: #a5a5b8;
+            --text-faint: #56566b;
+            --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+            --card-h: 440px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; background-color: #040407; }
+
+        body {
+            margin: 0;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: drift 40s linear infinite;
+        }
+
+        @keyframes drift { to { background-position: 40px 80px; } }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #040407; }
+        ::-webkit-scrollbar-thumb { background: #2b1f3a; border-radius: 4px; }
+
+        .career-wrap {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 5rem;
+        }
+
+        .career-header { margin-bottom: 2.5rem; }
+
+        .career-page-title {
+            font-size: clamp(2rem, 4vw, 2.9rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 8px var(--cyan), 0 0 20px rgba(0, 240, 255, 0.1);
+            margin: 0 0 0.5rem;
+        }
+
+        .career-subtitle { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+        /* Flip card */
+        .career-flip {
+            perspective: 1400px;
+            height: var(--card-h);
+            cursor: pointer;
+            outline: none;
+            border-radius: 12px;
+        }
+
+        .career-flip:focus-visible { box-shadow: 0 0 0 3px var(--cyan); }
+
+        .career-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .career-flip.is-flipped .career-flip-inner { transform: rotateY(180deg); }
+
+        .career-card {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #0b0712;
+            color: var(--text-main);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            --spot-opacity: 0;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .career-back { transform: rotateY(180deg); }
+
+        .career-col:nth-child(even) .career-card { --accent: var(--cyan); }
+
+        .career-card:hover {
+            border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+        }
+
+        .career-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: var(--spot-opacity);
+            transition: opacity 0.3s ease;
+            background: radial-gradient(260px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+                color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
+        }
+
+        .career-card .card-body {
+            position: relative;
+            height: 100%;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            background: transparent;
+            overflow-y: auto;
+        }
+
+        .career-back .card-body::-webkit-scrollbar { width: 4px; }
+
+        .career-watermark {
+            position: absolute;
+            right: -1rem;
+            bottom: 1rem;
+            font-size: 9rem;
+            color: var(--accent);
+            opacity: 0.06;
+            pointer-events: none;
+        }
+
+        .career-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+
+        .career-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 10%, transparent);
+            border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+        }
+
+        .career-track { font-size: 0.78rem; font-weight: 600; color: var(--accent); text-align: right; }
+
+        .career-title { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; margin: 0.5rem 0 0; }
+        .career-back-title { margin-top: 0; font-size: 1.15rem; }
+
+        .career-desc { font-size: 0.92rem; color: var(--text-muted); margin: 0; }
+
+        .career-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 0.6rem 0 0;
+        }
+
+        .career-skills, .career-training {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .career-skills li {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.65rem;
+            border-radius: 4px;
+        }
+
+        .career-training { flex-direction: column; gap: 0.25rem; }
+
+        .career-training li {
+            font-size: 0.86rem;
+            color: var(--text-muted);
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .career-training li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.6em;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        .career-hint {
+            margin-top: auto;
+            padding-top: 0.75rem;
+            font-size: 0.78rem;
+            color: var(--text-faint);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        @media (max-width: 768px) {
+            :root { --card-h: 470px; }
+            .career-wrap { padding-top: 2.5rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body::before { animation: none; }
+            .career-flip-inner { transition: none; }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container-fluid career-wrap" id="careers-page">
+        <header class="row career-header" id="careers-header">
+            <div class="col-12">
+                <h1 class="career-page-title">Types of AI Learning Models</h1>
+                <p class="career-subtitle">Different ways a machine can learn from data. Flip a card to see how each one works.</p>
+            </div>
+        </header>
+
+        <div id="careers-root"></div>
+    </main>
+
+    <!-- JSON -->
+    <script id="careers-data" type="application/json">
+    {
+        "careers": [
+            {
+                "id": "supervised-learning",
+                "title": "Supervised Learning",
+                "track": "Learning from labels",
+                "icon": "bi-tags",
+                "description": "Learns from examples that already have the correct answer attached, then predicts answers for new data.",
+                "skills": ["Labeled data", "Classification", "Regression"],
+                "overview": "The model studies many input and answer pairs, such as photos tagged 'cat' or 'dog'. It adjusts itself until its guesses match the labels, then applies that pattern to data it has never seen.",
+                "tools": ["Linear regression", "Decision trees", "Random forest", "Support vector machines", "k-nearest neighbors"],
+                "training": ["Email spam filtering", "House price prediction", "Medical image diagnosis"]
+            },
+            {
+                "id": "unsupervised-learning",
+                "title": "Unsupervised Learning",
+                "track": "Learning from labels",
+                "icon": "bi-collection",
+                "description": "Finds hidden patterns and groups in data that has no labels or right answers.",
+                "skills": ["Unlabeled data", "Clustering", "Pattern discovery"],
+                "overview": "The model is given raw data and left to find structure on its own, such as grouping similar customers or spotting records that look unusual.",
+                "tools": ["k-means clustering", "Hierarchical clustering", "PCA", "Autoencoders", "DBSCAN"],
+                "training": ["Customer segmentation", "Fraud and anomaly detection", "Topic grouping for documents"]
+            },
+            {
+                "id": "semi-supervised-learning",
+                "title": "Semi-Supervised Learning",
+                "track": "Learning from labels",
+                "icon": "bi-puzzle",
+                "description": "Mixes a small amount of labeled data with a large amount of unlabeled data.",
+                "skills": ["Few labels", "Pseudo-labeling", "Lower cost"],
+                "overview": "Labeling data is slow and expensive, so the model learns the basics from a few labeled examples and then uses that knowledge to label and learn from the rest.",
+                "tools": ["Self-training", "Label propagation", "Co-training", "Graph-based methods"],
+                "training": ["Speech recognition", "Web page classification", "Medical scans with few expert labels"]
+            },
+            {
+                "id": "self-supervised-learning",
+                "title": "Self-Supervised Learning",
+                "track": "Learning from labels",
+                "icon": "bi-bullseye",
+                "description": "Creates its own labels from the data itself, such as predicting a hidden part of the input.",
+                "skills": ["Auto-generated labels", "Pretraining", "Large datasets"],
+                "overview": "The model hides part of the data, like the next word in a sentence or a patch of an image, and trains itself to fill it in. This builds a general understanding without human labeling.",
+                "tools": ["Masked language modeling", "Next-token prediction", "Contrastive learning", "Masked autoencoders"],
+                "training": ["Pretraining language models", "Image representation learning", "Speech models"]
+            },
+            {
+                "id": "reinforcement-learning",
+                "title": "Reinforcement Learning",
+                "track": "Learning by doing",
+                "icon": "bi-controller",
+                "description": "An agent learns by trying actions and receiving rewards or penalties.",
+                "skills": ["Agent and environment", "Rewards", "Trial and error"],
+                "overview": "The agent takes an action, sees the result, and gets a score. Over many attempts it learns which choices lead to the highest total reward.",
+                "tools": ["Q-learning", "Deep Q-Networks (DQN)", "Policy gradients", "PPO", "Actor-critic"],
+                "training": ["Game-playing AI", "Robot movement and control", "Recommendation and ad systems"]
+            },
+            {
+                "id": "deep-learning",
+                "title": "Deep Learning",
+                "track": "Modern architectures",
+                "icon": "bi-cpu",
+                "description": "Uses many-layered neural networks to learn complex patterns from large amounts of data.",
+                "skills": ["Neural networks", "GPUs", "Big data"],
+                "overview": "Each layer of the network learns a more abstract feature than the one before it, from edges to shapes to whole objects. It can be trained with labels, without labels, or with rewards.",
+                "tools": ["CNNs", "RNNs and LSTMs", "Feedforward networks", "PyTorch", "TensorFlow"],
+                "training": ["Face and object recognition", "Voice assistants", "Self-driving car vision"]
+            },
+            {
+                "id": "transfer-learning",
+                "title": "Transfer Learning",
+                "track": "Modern architectures",
+                "icon": "bi-arrow-left-right",
+                "description": "Reuses a model trained on one task as the starting point for a new, related task.",
+                "skills": ["Pretrained models", "Fine-tuning", "Less data needed"],
+                "overview": "Instead of training from zero, you take a model that already understands general patterns and adjust it with a small dataset for your own problem. This saves time, data, and computing power.",
+                "tools": ["Fine-tuning", "Feature extraction", "ResNet", "BERT", "Hugging Face models"],
+                "training": ["Custom image classifiers", "Sentiment analysis", "Medical imaging with small datasets"]
+            },
+            {
+                "id": "generative-models",
+                "title": "Generative Models",
+                "track": "Modern architectures",
+                "icon": "bi-chat-left-text",
+                "description": "Learns the shape of its training data well enough to create new text, images, audio, or code.",
+                "skills": ["Transformers", "Content creation", "Probability"],
+                "overview": "Rather than only sorting or predicting, the model produces new content that resembles what it learned from. Large language models and image generators are built this way.",
+                "tools": ["Transformers", "GANs", "Diffusion models", "VAEs", "Large language models"],
+                "training": ["AI chatbots and assistants", "Image and music generation", "Code completion"]
+            },
+            {
+                "id": "federated-learning",
+                "title": "Federated Learning",
+                "track": "Modern architectures",
+                "icon": "bi-phone",
+                "description": "Trains a shared model across many devices without collecting their private data in one place.",
+                "skills": ["Privacy", "Distributed training", "Edge devices"],
+                "overview": "Each device trains the model on its own data and sends back only the updates. A central server combines these updates into one improved model, so raw data never leaves the device.",
+                "tools": ["Federated averaging", "TensorFlow Federated", "Flower", "Differential privacy"],
+                "training": ["Phone keyboard suggestions", "Hospital collaboration on patient data", "Bank fraud detection across branches"]
+            }
+        ]
+    }
+    </script>
+
+    <script>
+        function escapeHtml(value) {
+            var div = document.createElement("div");
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
+        function listItems(items) {
+            return items.map(function (item) {
+                return "<li>" + escapeHtml(item) + "</li>";
+            }).join("");
+        }
+
+        // Card layout functions
+        function careerColumn(career) {
+            var id = escapeHtml(career.id);
+            var title = escapeHtml(career.title);
+            var icon = escapeHtml(career.icon);
+
+            return `
+                        <div class="col-12 col-md-6 col-lg-4 career-col" id="col-${id}">
+                            <div class="career-flip" id="career-${id}" role="button" tabindex="0" aria-pressed="false" aria-label="${title}. Flip card for details.">
+                                <div class="career-flip-inner">
+                                    <article class="card career-card career-front" id="front-${id}" aria-hidden="false">
+                                        <div class="card-body">
+                                            <i class="bi ${icon} career-watermark" aria-hidden="true"></i>
+                                            <div class="career-top">
+                                                <span class="career-icon"><i class="bi ${icon}" aria-hidden="true"></i></span>
+                                                <span class="career-track">${escapeHtml(career.track)}</span>
+                                            </div>
+                                            <h3 class="career-title">${title}</h3>
+                                            <p class="career-desc">${escapeHtml(career.description)}</p>
+                                            <ul class="career-skills">${listItems(career.skills)}</ul>
+                                            <span class="career-hint"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Flip card</span>
+                                        </div>
+                                    </article>
+                                    <article class="card career-card career-back" id="back-${id}" aria-hidden="true">
+                                        <div class="card-body">
+                                            <h3 class="career-title career-back-title">${title}</h3>
+                                            <h4 class="career-label">How it works</h4>
+                                            <p class="career-desc career-overview">${escapeHtml(career.overview)}</p>
+                                            <h4 class="career-label">Common algorithms</h4>
+                                            <ul class="career-skills career-tools">${listItems(career.tools)}</ul>
+                                            <h4 class="career-label">Where it's used</h4>
+                                            <ul class="career-training">${listItems(career.training)}</ul>
+                                            <span class="career-hint"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Flip back</span>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>`;
+        }
+
+        function careerLayout(careers) {
+            return `
+                <div class="container-fluid px-0" id="careers-container">
+                    <div class="row g-3 career" id="careers-row">${careers.map(careerColumn).join("")}
+                    </div>
+                </div>`;
+        }
+
+        function toggleFlip(flip) {
+            var flipped = !flip.classList.contains("is-flipped");
+            flip.classList.toggle("is-flipped", flipped);
+            flip.setAttribute("aria-pressed", String(flipped));
+            flip.querySelector(".career-front").setAttribute("aria-hidden", String(flipped));
+            flip.querySelector(".career-back").setAttribute("aria-hidden", String(!flipped));
+        }
+
+        function bindFlip(row) {
+            row.addEventListener("click", function (event) {
+                var flip = event.target.closest(".career-flip");
+                if (flip) toggleFlip(flip);
+            });
+
+            row.addEventListener("keydown", function (event) {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                var flip = event.target.closest(".career-flip");
+                if (!flip) return;
+                event.preventDefault();
+                toggleFlip(flip);
+            });
+        }
+
+        function bindSpotlight(row) {
+            row.addEventListener("pointermove", function (event) {
+                var card = event.target.closest(".card");
+                if (!card) return;
+                var rect = card.getBoundingClientRect();
+                card.style.setProperty("--spot-x", event.clientX - rect.left + "px");
+                card.style.setProperty("--spot-y", event.clientY - rect.top + "px");
+                card.style.setProperty("--spot-opacity", "1");
+            });
+
+            row.addEventListener("pointerout", function (event) {
+                var card = event.target.closest(".card");
+                if (card && !card.contains(event.relatedTarget)) {
+                    card.style.setProperty("--spot-opacity", "0");
+                }
+            });
+        }
+
+        function renderCareers(targetId, dataId) {
+            var target = document.getElementById(targetId || "careers-root");
+            var data = JSON.parse(document.getElementById(dataId || "careers-data").textContent);
+
+            target.innerHTML = careerLayout(data.careers);
+
+            var row = document.getElementById("careers-row");
+            bindFlip(row);
+            bindSpotlight(row);
+        }
+
+        renderCareers("careers-root", "careers-data");
+    </script>
+</body>
+
+</html>
