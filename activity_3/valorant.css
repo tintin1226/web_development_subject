@@ -311,7 +311,6 @@ h6,
 }
 
 /* ---------- Info tiles ---------- */
-/* Base tile (used as-is for wide map tiles) */
 .info-tile {
     background: var(--val-black);
     border: 1px solid var(--val-line);
@@ -347,7 +346,6 @@ h6,
     line-height: 1.1;
 }
 
-/* Exactly 3 square tiles per row */
 .tile-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -409,7 +407,6 @@ h6,
     line-height: 1;
 }
 
-/* ---------- Flip cards (agent abilities) ---------- */
 .flip-card {
     aspect-ratio: 1 / 1;
     width: 100%;
@@ -500,57 +497,103 @@ hr {
     }
 }
 
+
+/* ---------- Weapon skins gallery ---------- */
+.skin-card {
+    height: 100%;
+}
+
+.skin-card.selected .card {
+    border-color: var(--val-red) !important;
+    box-shadow: 0 0 14px rgba(var(--val-rgb), .6) !important;
+}
+
+.skin-card .card {
+    height: 100%;
+    padding: .75rem;
+}
+
+.skin-card:hover,
+.skin-card:focus-visible {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent, var(--val-red)) 85%, transparent)) drop-shadow(0 0 18px color-mix(in srgb, var(--accent, var(--val-red)) 50%, transparent));
+}
+
+.skin-img {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent, var(--val-red)) 32%, transparent), var(--val-black) 75%);
+    border: 1px solid var(--accent, var(--val-line));
+    margin-bottom: .6rem;
+}
+
+.skin-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 6px;
+}
+
+.skin-name {
+    font-family: 'Teko', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: .04em;
+    line-height: 1.1;
+}
+
+.skin-meta {
+    color: var(--val-muted);
+    font-size: .8rem;
+}
+
 /* ---------- Holographic Minimap Overlay ---------- */
 .map-holo-overlay {
-  position: absolute !important;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  top: auto !important;
-  left: auto !important;
-  width: 150px;
-  height: 150px;
-  background: rgba(12, 12, 14, 0.92);
-  border: 1px solid var(--val-red);
-  box-shadow: 0 0 15px rgba(var(--val-rgb), 0.4), inset 0 0 15px rgba(var(--val-rgb), 0.2);
-  transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-    height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  overflow: hidden;
-  cursor: pointer;
-  z-index: 10;
+    position: absolute !important;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    top: auto !important;
+    left: auto !important;
+    width: 150px;
+    height: 150px;
+    background: rgba(12, 12, 14, 0.92);
+    border: 1px solid var(--val-red);
+    box-shadow: 0 0 15px rgba(var(--val-rgb), 0.4), inset 0 0 15px rgba(var(--val-rgb), 0.2);
+    transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+        height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 10;
 }
 
-/* Sci-Fi scanline grid overlay */
 .map-holo-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    rgba(255, 255, 255, 0) 50%, 
-    rgba(var(--val-rgb), 0.15) 50%
-  );
-  background-size: 100% 4px;
-  pointer-events: none;
-  z-index: 2;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(255, 255, 255, 0) 50%,
+            rgba(var(--val-rgb), 0.15) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 2;
 }
 
-/* Expand to fill the entire card on hover */
 .map-holo-overlay:hover {
-  width: calc(100% - 1.5rem);
-  height: calc(100% - 1.5rem);
-  border-radius: 0;
-  box-shadow: 0 0 30px rgba(var(--val-rgb), 0.8), inset 0 0 30px rgba(var(--val-rgb), 0.3);
-  border-color: #ffffff;
+    width: calc(100% - 1.5rem);
+    height: calc(100% - 1.5rem);
+    border-radius: 0;
+    box-shadow: 0 0 30px rgba(var(--val-rgb), 0.8), inset 0 0 30px rgba(var(--val-rgb), 0.3);
+    border-color: #ffffff;
 }
 
 .map-holo-tag {
-  font-family: 'Teko', sans-serif;
-  font-size: 1.1rem;
-  letter-spacing: 0.12em;
-  color: var(--on-accent);
-  background: rgba(12, 12, 14, 0.95);
-  border-top: 1px solid var(--val-red);
-  text-transform: uppercase;
-  z-index: 3;
+    font-family: 'Teko', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    color: var(--on-accent);
+    background: rgba(12, 12, 14, 0.95);
+    border-top: 1px solid var(--val-red);
+    text-transform: uppercase;
+    z-index: 3;
 }
 
 /* ==========================================
@@ -558,109 +601,109 @@ hr {
    ========================================== */
 
 /* ---------- Keyframes ---------- */
-
-/* Snappy clip-path wipe entrance (Signatures of Valorant UI) */
 @keyframes valWipeIn {
-  0% {
-    opacity: 0;
-    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    transform: translateX(-12px);
-  }
-  100% {
-    opacity: 1;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    transform: translateX(0);
-  }
+    0% {
+        opacity: 0;
+        clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+        transform: translateX(-12px);
+    }
+
+    100% {
+        opacity: 1;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        transform: translateX(0);
+    }
 }
 
-/* Fast upward slide & scale boost */
 @keyframes valSlideUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.97);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-/* Diagonal holographic glint sweep */
 @keyframes valGlint {
-  0% { transform: translateX(-150%) skewX(-25deg); }
-  100% { transform: translateX(250%) skewX(-25deg); }
+    0% {
+        transform: translateX(-150%) skewX(-25deg);
+    }
+
+    100% {
+        transform: translateX(250%) skewX(-25deg);
+    }
 }
 
-/* Ambient glow pulse for active elements */
 @keyframes valPulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(var(--val-rgb), 0.4);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(var(--val-rgb), 0.85);
-  }
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(var(--val-rgb), 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(var(--val-rgb), 0.85);
+    }
 }
 
-/* Scanline pass for preview elements */
 @keyframes valScanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(1000%); }
+    0% {
+        transform: translateY(-100%);
+    }
+
+    100% {
+        transform: translateY(1000%);
+    }
 }
 
 /* ---------- Applied Animation Classes ---------- */
-
-/* Header wipe animation */
 .val-header {
-  animation: valWipeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: valWipeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Staggered entrance for list cards & skin tiles */
 .glow-wrap {
-  opacity: 0;
-  animation: valSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    animation: valSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Hover shine sweep effect on cards */
 .glow-wrap .card {
-  position: relative;
-  overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }
 
 .glow-wrap .card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(
-    90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.18), 
-    transparent
-  );
-  transform: translateX(-150%) skewX(-25deg);
-  pointer-events: none;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.18),
+            transparent);
+    transform: translateX(-150%) skewX(-25deg);
+    pointer-events: none;
 }
 
 .glow-wrap:hover .card::after {
-  animation: valGlint 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: valGlint 0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Main character / item portrait entrance animation */
-#imgContainer img#image, 
+#imgContainer img#image,
 #imgContainer video#skinVideoPlayer {
-  animation: valSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: valSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Button click tactile snap */
-.btn:active, 
+.btn:active,
 .list-group-item:active {
-  transform: scale(0.96) translateY(1px) !important;
-  transition: transform 0.05s ease !important;
+    transform: scale(0.96) translateY(1px) !important;
+    transition: transform 0.05s ease !important;
 }
 
-/* Active sidebar item glow pulse */
 .list-group-item.active {
-  animation: valPulseGlow 2.5s infinite ease-in-out;
+    animation: valPulseGlow 2.5s infinite ease-in-out;
 }

@@ -27,7 +27,6 @@
 
   <div class="container pb-5">
     <div class="row">
-      <!-- Sidebar Navigation Menu -->
       <div class="col-md-3 mb-4">
         <div class="card p-3">
           <h5 class="mb-3 px-2 fs-3">Categories</h5>
@@ -46,9 +45,7 @@
         </div>
       </div>
 
-      <!-- Main Content Area -->
       <div class="col-md-9">
-        <!-- Search Bar Section -->
         <div class="card p-3 mb-3">
           <div class="d-flex flex-row">
             <input type="text" placeholder="Search any Agent, Weapon, or Map"
@@ -68,7 +65,6 @@
         </nav>
 
         <div class="row" id="parent">
-          <!-- Items injected here -->
         </div>
       </div>
     </div>
@@ -78,7 +74,6 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
   <script>
-    // Iconic color for each agent (agents not listed get a unique color generated from their name)
     const agentColors = {
       'Jett': '#A8DFFF', 'Phoenix': '#FF6A2B', 'Sage': '#4DF5CF', 'Sova': '#1E6BFF',
       'Brimstone': '#C98A3A', 'Viper': '#2FD45A', 'Cypher': '#D5DAE2', 'Reyna': '#D93DFF',
@@ -114,7 +109,6 @@
     let itemList = [];
     let filteredList = [];
 
-    // Cache to hold fetched data for all categories so global search is instant
     const cache = {
       agents: null,
       weapons: null,
