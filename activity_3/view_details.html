@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Item Details - VALORANT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="valorant.css" rel="stylesheet">
+    <style>
+        /* ---------- Weapon skins gallery ---------- */
+        .skin-card {
+            height: 100%;
+        }
+
+        .skin-card.selected .card {
+            border-color: var(--val-red) !important;
+            box-shadow: 0 0 14px rgba(var(--val-rgb), .6) !important;
+        }
+
+        .skin-card .card {
+            height: 100%;
+            padding: .75rem;
+        }
+
+        .skin-card:hover,
+        .skin-card:focus-visible {
+            filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent, var(--val-red)) 85%, transparent)) drop-shadow(0 0 18px color-mix(in srgb, var(--accent, var(--val-red)) 50%, transparent));
+        }
+
+        .skin-img {
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent, var(--val-red)) 32%, transparent), var(--val-black) 75%);
+            border: 1px solid var(--accent, var(--val-line));
+            margin-bottom: .6rem;
+        }
+
+        .skin-img img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            padding: 6px;
+        }
+
+        .skin-name {
+            font-family: 'Teko', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: .04em;
+            line-height: 1.1;
+        }
+
+        .skin-meta {
+            color: var(--val-muted);
+            font-size: .8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid val-header mb-4">
+        <div class="row">
+            <div class="col d-flex align-items-center justify-content-between gap-3 px-4 py-3">
+                <div class="val-brand">
+                    <h1 class="display-8 val-brand-title">VALORANT API</h1>
+                    <p class="val-brand-subtitle mb-0">Explore agents, weapons, and maps</p>
+                </div>
+                <img class="val-logo"
+                    src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cbf4460132cdfeb2a97fad5f9dd25ba0bc058f76-128x128.png?accountingTag=VAL"
+                    alt="VALORANT logo">
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <!-- Search Bar Section -->
+        <div class="row my-3">
+            <div class="col px-lg-5">
+                <div class="card p-3">
+                    <div class="d-flex flex-row">
+                        <input type="text" placeholder="Search Agent, Weapon, or Map" class="form-control"
+                            id="searchInput">
+                        <div class="btn btn-primary px-4" onclick="searchAndDisplayItem()" role="button">
+                            Search
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col px-lg-5 my-2">
+                <a href="api_activity.html" id="backlink" class="text-decoration-none">
+                    <div class="btn btn-secondary">Back to list</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col px-lg-5">
+                <div class="glow-wrap" style="cursor: default;">
+                    <div class="card p-4 p-lg-5">
+                        <div class="row g-4 align-items-start">
+
+                            <div class="row g-4 align-items-start">
+
+                                <!-- Left Column: Large Illustration -->
+                                <div class="col-lg-5">
+                                    <div class="position-relative overflow-hidden d-flex align-items-center justify-content-center w-100"
+                                        style="height: 500px;" id="imgContainer">
+                                        <img id="bgImage" src="" class="position-absolute w-100 h-100 opacity-25"
+                                            style="object-fit: cover;" alt="">
+                                        <img id="image" src=""
+                                            style="height: 100%; max-width: 100%; object-fit: contain;"
+                                            class="mx-auto position-relative z-1 p-2" alt="">
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Top info & Bottom right details side-by-side with illustration -->
+                                <div class="col-lg-7 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <!-- Name & Category Badge -->
+                                        <div class="mb-2" id="name"
+                                            style="font-family: 'Teko', sans-serif; font-size: 3.2rem; letter-spacing: .06em; line-height: 1.1; text-transform: uppercase;">
+                                            <div class="spinner-border text-danger" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <span class="tag-pill" id="type"></span>
+                                        </div>
+
+                                        <!-- Description / Lore -->
+                                        <div class="mb-3" id="description"></div>
+                                    </div>
+
+                                    <!-- Bottom Right Details Section -->
+                                    <div class="mt-4">
+                                        <hr class="my-3">
+                                        <h4 class="mb-2 fs-3" id="extraSectionTitle">Details</h4>
+                                        <div class="tile-grid" id="extraContent"></div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weapon skins (shown for weapons only) -->
+        <div class="row mt-4 d-none" id="skinsSection">
+            <div class="col px-lg-5">
+                <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+                    <h4 class="fs-2 mb-0">Skins <small class="text-muted fs-6"
+                            style="font-family: Barlow, sans-serif; letter-spacing: 0;" id="skinCount"></small></h4>
+                    <input type="text" class="form-control w-auto" style="min-width: 240px;" id="skinFilter"
+                        placeholder="Filter skins by name...">
+                </div>
+                <div class="row g-3" id="skinsGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        // Accent colors per role (used for the tag border)
+        const roleColors = {
+            Duelist: '#FF4655',
+            Initiator: '#F2C94C',
+            Controller: '#4CC9F0',
+            Sentinel: '#4ADE80',
+            Unknown: '#9AA0A6'
+        };
+
+
+        // Iconic color for each agent (fallback below covers any agent not listed)
+        const agentColors = {
+            'Jett': '#A8DFFF', 'Phoenix': '#FF6A2B', 'Sage': '#4DF5CF', 'Sova': '#1E6BFF',
+            'Brimstone': '#C98A3A', 'Viper': '#2FD45A', 'Cypher': '#D5DAE2', 'Reyna': '#D93DFF',
+            'Killjoy': '#FFE94A', 'Breach': '#FF9E7A', 'Omen': '#6F7BFF', 'Raze': '#FFB020',
+            'Skye': '#8FD6A8', 'Yoru': '#2B3FD6', 'Astra': '#B04DFF', 'KAY/O': '#7E8CA3',
+            'Chamber': '#E8C879', 'Neon': '#00C8FF', 'Fade': '#1F8A9C', 'Harbor': '#E0A12E',
+            'Gekko': '#A8FF3E', 'Deadlock': '#C9B8A0', 'Iso': '#9A6BFF', 'Clove': '#FF6FB5',
+            'Vyse': '#8C9AAE', 'Tejo': '#E07B39', 'Waylay': '#FFD23F'
+        };
+        const defaultTheme = { color: '#FF4655' };
+
+        // Pick a readable text color (black or white) for text placed on the accent color
+        function textOn(hex) {
+            const n = parseInt(hex.slice(1), 16);
+            const r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+            return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#0c0c0e' : '#ffffff';
+        }
+
+        // Unknown agents get a stable, unique color generated from their name
+        function fallbackColor(name) {
+            let h = 0;
+            for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+            const c = document.createElement('canvas').getContext('2d');
+            c.fillStyle = `hsl(${h}, 85%, 60%)`;
+            return c.fillStyle; // normalized to #rrggbb
+        }
+
+        function applyTheme(hex) {
+            const root = document.documentElement.style;
+            const n = parseInt(hex.slice(1), 16);
+            root.setProperty('--val-red', hex);
+            root.setProperty('--val-red-deep', hex);
+            root.setProperty('--val-rgb', `${n >> 16}, ${(n >> 8) & 255}, ${n & 255}`);
+            root.setProperty('--on-accent', textOn(hex));
+        }
+
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const id = urlParams.get('id');
+        const category = urlParams.get('category');
+        var page = urlParams.get('page') || 1;
+
+        var elName = document.getElementById("name");
+        var elImage = document.getElementById("image");
+        var elBgImage = document.getElementById("bgImage");
+        var elType = document.getElementById("type");
+        var elDescription = document.getElementById("description");
+        var elExtraContent = document.getElementById("extraContent");
+        var elExtraTitle = document.getElementById("extraSectionTitle");
+        var elBacklink = document.getElementById("backlink");
+        var elSearch = document.getElementById("searchInput");
+
+        elBacklink.href = `api_activity.html?category=${category}&page=${page}`;
+
+        function capitalizeFirstLetter(str) {
+            if (!str) return str;
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+
+        // ---------- Weapon skins ----------
+        var elSkinsSection = document.getElementById("skinsSection");
+        var elSkinsGrid = document.getElementById("skinsGrid");
+        var elSkinCount = document.getElementById("skinCount");
+        var elSkinFilter = document.getElementById("skinFilter");
+        var currentSkins = [];
+        var selectedSkin = -1;
+
+        function skinImage(skin) {
+            if (skin.displayIcon) return skin.displayIcon;
+            const lvl = (skin.levels || []).find(l => l.displayIcon);
+            if (lvl) return lvl.displayIcon;
+            const chroma = (skin.chromas || []).find(c => c.fullRender || c.displayIcon);
+            return chroma ? (chroma.fullRender || chroma.displayIcon) : '';
+        }
+
+        function skinVideo(skin) {
+            const lvl = (skin.levels || []).find(l => l.streamedVideo);
+            return lvl ? lvl.streamedVideo : (skin.streamedVideo || '');
+        }
+
+        var tierColors = {};
+        var tiersLoaded = false;
+        async function loadTiers() {
+            if (tiersLoaded) return;
+            try {
+                const res = await fetch('https://valorant-api.com/v1/contenttiers');
+                const json = await res.json();
+                (json.data || []).forEach(t => { tierColors[t.uuid] = '#' + t.highlightColor.slice(0, 6); });
+            } catch (e) { console.error('Failed to load skin tiers:', e); }
+            tiersLoaded = true;
+        }
+
+        // Most prominent vivid color in a skin image, so each skin gets its own color
+        function dominantColor(img) {
+            try {
+                const w = 48, hgt = Math.max(1, Math.round(w * img.naturalHeight / img.naturalWidth));
+                const cv = document.createElement('canvas');
+                cv.width = w; cv.height = hgt;
+                const ctx = cv.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(img, 0, 0, w, hgt);
+                const data = ctx.getImageData(0, 0, w, hgt).data;
+                const buckets = {};
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+                    if (a < 128) continue;
+                    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+                    const v = max / 255, s = max === 0 ? 0 : (max - min) / max;
+                    if (s < 0.35 || v < 0.35) continue;
+                    let hue;
+                    if (max === min) continue;
+                    const d = max - min;
+                    if (max === r) hue = ((g - b) / d) % 6;
+                    else if (max === g) hue = (b - r) / d + 2;
+                    else hue = (r - g) / d + 4;
+                    hue = (hue * 60 + 360) % 360;
+                    const key = Math.floor(hue / 15);
+                    const bk = buckets[key] || (buckets[key] = { w: 0, r: 0, g: 0, b: 0 });
+                    const weight = s * v;
+                    bk.w += weight; bk.r += r * weight; bk.g += g * weight; bk.b += b * weight;
+                }
+                let best = null;
+                Object.values(buckets).forEach(bk => { if (!best || bk.w > best.w) best = bk; });
+                if (!best) return null;
+                const to = x => Math.round(x / best.w).toString(16).padStart(2, '0');
+                return '#' + to(best.r) + to(best.g) + to(best.b);
+            } catch (e) {
+                return null; // image blocked by CORS: keep the tier color
+            }
+        }
+
+        function skinImgLoaded(img, idx) {
+            const skin = currentSkins[idx];
+            if (!skin || skin.auto) return;
+            skin.auto = true;
+            const col = dominantColor(img);
+            if (!col) return;
+            skin.color = col;
+            const card = img.closest('.skin-card');
+            if (card) card.style.setProperty('--accent', col);
+        }
+
+        function skinImgError(img) {
+            // If the image host does not allow CORS, load it normally (the tier color is used instead)
+            if (img.crossOrigin) {
+                img.removeAttribute('crossorigin');
+                img.src = img.src;
+            }
+        }
+
+        function drawSkins() {
+            const q = elSkinFilter.value.toLowerCase().trim();
+            const list = q ? currentSkins.filter(s => s.name.toLowerCase().includes(q)) : currentSkins;
+            elSkinCount.textContent = q ? `${list.length} of ${currentSkins.length}` : `${currentSkins.length} available`;
+            if (list.length === 0) {
+                elSkinsGrid.innerHTML = '<div class="col-12 text-center text-muted py-4">No skins match your filter.</div>';
+                return;
+            }
+            elSkinsGrid.innerHTML = list.map((s, idx) => {
+            const globalIdx = currentSkins.indexOf(s);
+            return `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="glow-wrap skin-card ${globalIdx === selectedSkin ? 'selected' : ''}" 
+                        style="--accent: ${s.color}; animation-delay: ${(idx % 12) * 0.04}s;" 
+                        tabindex="0" role="button"
+                        aria-label="Show ${s.name}"
+                        onclick="selectSkin(${globalIdx})"
+                        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSkin(${globalIdx});}">
+                        <div class="card">
+                            <div class="skin-img">
+                            <img src="${s.img}" crossorigin="anonymous" loading="lazy" alt="${s.name}" onload="skinImgLoaded(this, ${globalIdx})" onerror="skinImgError(this)">
+                            </div>
+                            <div class="skin-name">${s.name}</div>
+                            ${s.variants > 1 ? `<div class="skin-meta">${s.variants} variants</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function selectSkin(idx) {
+            const skin = currentSkins[idx];
+            if (!skin) return;
+            selectedSkin = idx;
+
+            const imgContainer = document.getElementById("imgContainer");
+
+            if (skin.video) {
+                imgContainer.innerHTML = `
+                    <img id="bgImage" src="${skin.img}" class="position-absolute w-100 h-100 opacity-25" style="object-fit: cover;" alt="">
+                    <video id="skinVideoPlayer" src="${skin.video}" class="mx-auto position-relative z-1 w-100 h-100 p-2" controls autoplay loop muted style="object-fit: contain;"></video>
+                `;
+            } else {
+                imgContainer.innerHTML = `
+                    <img id="bgImage" src="" class="position-absolute w-100 h-100 opacity-25" style="object-fit: cover;" alt="">
+                    <img id="image" src="${skin.img}" style="height: 100%; max-width: 100%; object-fit: contain;" class="mx-auto position-relative z-1 p-2" alt="">
+                `;
+                document.getElementById("bgImage").src = skin.img;
+            }
+
+            applyTheme(skin.color);
+            elType.style.setProperty('--accent', skin.color);
+            drawSkins();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function renderSkins(skins) {
+            await loadTiers();
+            const hidden = /^(standard\b|random favorite)/i;
+            currentSkins = (skins || [])
+                .map(s => ({
+                    name: s.displayName,
+                    img: skinImage(s),
+                    video: skinVideo(s),
+                    variants: (s.chromas || []).length,
+                    color: tierColors[s.contentTierUuid] || '#9AA0A6'
+                }))
+                .filter(s => s.img && !hidden.test(s.name));
+            selectedSkin = -1;
+            elSkinFilter.value = '';
+            elSkinsSection.classList.remove('d-none');
+            drawSkins();
+        }
+
+        function hideSkins() {
+            elSkinsSection.classList.add('d-none');
+            elSkinsGrid.innerHTML = '';
+        }
+
+        elSkinFilter.addEventListener('input', drawSkins);
+
+        const renderItemData = (item, typeCategory) => {
+            elName.innerHTML = item.displayName;
+            elBgImage.src = item.background || '';
+            elDescription.innerHTML = item.description || item.tacticalDescription || "No description available.";
+
+            const imgContainer = document.getElementById("imgContainer");
+            imgContainer.className = "position-relative overflow-hidden d-flex align-items-center justify-content-center w-100";
+            imgContainer.style.height = "500px";
+            imgContainer.style.backgroundColor = "";
+            imgContainer.style.border = "";
+            imgContainer.innerHTML = `
+                <img id="bgImage" src="" class="position-absolute w-100 h-100 opacity-25" style="object-fit: cover;" alt="">
+                <img id="image" src="" style="height: 100%; max-width: 100%; object-fit: contain;" class="mx-auto position-relative z-1 p-2" alt="">
+            `;
+            elImage = document.getElementById("image");
+            elBgImage = document.getElementById("bgImage");
+            elBgImage.src = item.background || '';
+
+            applyTheme(typeCategory === 'agents'
+                ? (agentColors[item.displayName] || fallbackColor(item.displayName))
+                : defaultTheme.color);
+
+            if (typeCategory !== 'weapons') hideSkins();
+
+            if (typeCategory === 'agents') {
+                const roleName = item.role ? item.role.displayName : 'Unknown';
+                const roleIcon = item.role ? item.role.displayIcon : '';
+                const color = getComputedStyle(document.documentElement).getPropertyValue('--val-red').trim();
+
+                elImage.src = item.fullPortraitV2 || item.fullPortrait || item.displayIcon;
+                elType.innerHTML = roleIcon ? `<img src="${roleIcon}" alt="">${capitalizeFirstLetter(roleName)}` : capitalizeFirstLetter(roleName);
+                elType.style.setProperty('--accent', color);
+
+                elExtraTitle.innerHTML = 'Abilities <small class="text-muted fs-6" style="font-family: Barlow, sans-serif; letter-spacing: 0;">hover or tap a tile to flip</small>';
+                elExtraContent.className = 'tile-grid';
+                elExtraContent.innerHTML = '';
+                item.abilities.forEach(ability => {
+                    if (!ability.displayName) return;
+                    const iconSrc = ability.displayIcon ? ability.displayIcon : '';
+                    elExtraContent.innerHTML += `
+            <div class="flip-card" tabindex="0" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('flipped');}">
+              <div class="flip-inner">
+                <div class="flip-face flip-front info-tile">
+                  ${iconSrc ? `<img src="${iconSrc}" class="tile-icon" alt="">` : ''}
+                  <div class="tile-name">${ability.displayName}</div>
+                  <span class="slot-badge">${ability.slot}</span>
+                </div>
+                <div class="flip-face flip-back info-tile">
+                  <p class="tile-text">${ability.description}</p>
+                </div>
+              </div>
+            </div>
+          `;
+                });
+
+            } else if (typeCategory === 'weapons') {
+                document.getElementById("imgContainer").innerHTML = `
+                    <img id="bgImage" src="${item.displayIcon}" class="position-absolute w-100 h-100 opacity-25" style="object-fit: cover;" alt="">
+                    <img id="image" src="${item.displayIcon}" style="height: 100%; max-width: 100%; object-fit: contain;" class="mx-auto position-relative z-1 p-2" alt="">
+                `;
+                elImage = document.getElementById("image");
+                elBgImage = document.getElementById("bgImage");
+
+                const weaponCat = item.category ? item.category.replace('EEquippableCategory::', '') : 'Weapon';
+                elType.innerHTML = item.killStreamIcon
+                    ? `<img src="${item.killStreamIcon}" alt="" style="width: auto; height: 18px; max-width: 72px; object-fit: contain; filter: brightness(0) invert(1);">${weaponCat}`
+                    : weaponCat;
+                elType.style.setProperty('--accent', '#FF4655');
+
+                renderSkins(item.skins);
+
+                elExtraTitle.innerHTML = "Weapon Stats";
+                const stats = item.weaponStats;
+                if (stats) {
+                    elExtraContent.className = 'tile-grid';
+                    elExtraContent.innerHTML = `
+            <div class="info-tile tile-sq"><div class="tile-label">Fire Rate</div><div class="tile-value">${stats.fireRate || 'N/A'}</div></div>
+            <div class="info-tile tile-sq"><div class="tile-label">Magazine Size</div><div class="tile-value">${stats.magazineSize || 'N/A'}</div></div>
+            <div class="info-tile tile-sq"><div class="tile-label">Run Speed</div><div class="tile-value">${stats.runSpeedMultiplier || 'N/A'}</div></div>
+          `;
+                } else {
+                    elExtraContent.className = 'row g-3';
+                    elExtraContent.innerHTML = `<div class="col-12 text-muted text-center">Detailed weapon stats unavailable.</div>`;
+                }
+
+            } else if (typeCategory === 'maps') {
+                const splashImage = item.splash || item.listViewIcon;
+                const miniMapImage = item.displayIcon || splashImage;
+                
+                const imgContainer = document.getElementById("imgContainer");
+                imgContainer.className = "position-relative overflow-hidden w-100"; // Removed conflicting flex center classes
+                imgContainer.style.height = "500px";
+                imgContainer.style.backgroundColor = "";
+                imgContainer.style.border = "";
+                
+                imgContainer.innerHTML = `
+                    <img id="bgImage" src="${splashImage}" class="position-absolute w-100 h-100 opacity-25" style="object-fit: cover;" alt="">
+                    <img id="image" src="${splashImage}" style="height: 100%; width: 100%; object-fit: contain;" class="position-relative z-1 p-2" alt="${item.displayName}">
+                    
+                    <!-- Single Holographic Minimap Overlay in Bottom Right -->
+                    <div class="map-holo-overlay d-flex flex-column justify-content-between">
+                        <img src="${miniMapImage}" class="w-100 h-100 p-3" style="object-fit: contain; filter: drop-shadow(0 0 8px rgba(var(--val-rgb), 0.5));" alt="Minimap Blueprint">
+                        <div class="w-100 text-center py-1 map-holo-tag">TACTICAL MAP</div>
+                    </div>
+                `;
+
+                elType.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5.795a.5.5 0 0 0-.353.146L7 2.793 2.646.146A.5.5 0 0 0 2.293 0H.5a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h5.795a.5.5 0 0 0 .353-.146L9 11.207l4.354 2.647a.5.5 0 0 0 .353.146H15.5a.5.5 0 0 0 .5-.5v-13zm-3.75 3.354a.5.5 0 0 0-.708 0L9 6.293V11.5a.5.5 0 0 0 .708 0l3.5-2.293V3.854zM8 4.5a.5.5 0 0` +
+                `-.708 0L3.792 6.793V11.5a.5.5 0 0 0 .708 0L8 9.207V4.5z"/></svg>Map`;
+                elType.style.setProperty('--accent', '#FF4655');
+
+                elExtraTitle.innerHTML = "Map Details";
+                elExtraContent.className = 'd-grid gap-3';
+                elExtraContent.innerHTML = `
+                <div class="info-tile stat-tile"><h6 class="tile-title">Coordinates</h6><div class="stat-value fs-3">${item.coordinates || 'Unknown'}</div></div>
+                <div class="info-tile"><h6 class="tile-title">Tactical Description</h6><p class="tile-text">${item.tacticalDescription || 'Standard Map'}</p></div>
+                `;
+            }
+        };
+
+        const fetchAndDisplayById = async (itemId, itemCategory) => {
+            try {
+                let endpoint = '';
+                if (itemCategory === 'weapons') endpoint = `https://valorant-api.com/v1/weapons/${itemId}`;
+                else if (itemCategory === 'maps') endpoint = `https://valorant-api.com/v1/maps/${itemId}`;
+                else endpoint = `https://valorant-api.com/v1/agents/${itemId}`;
+
+                const response = await fetch(endpoint);
+                const result = await response.json();
+                renderItemData(result.data, itemCategory || 'agents');
+            } catch (error) {
+                console.error('Failed to fetch item details:', error);
+                elName.innerHTML = `<span class="text-danger">Item Not Found</span>`;
+            }
+        };
+
+        const searchAndDisplayItem = async () => {
+            const query = elSearch.value.toLowerCase().trim();
+            if (!query) return;
+
+            try {
+                const [agentsRes, weaponsRes, mapsRes] = await Promise.all([
+                    fetch('https://valorant-api.com/v1/agents?isPlayableCharacter=true').then(r => r.json()),
+                    fetch('https://valorant-api.com/v1/weapons').then(r => r.json()),
+                    fetch('https://valorant-api.com/v1/maps').then(r => r.json())
+                ]);
+
+                const foundAgent = agentsRes.data.find(a => a.displayName.toLowerCase().includes(query));
+                if (foundAgent) {
+                    renderItemData(foundAgent, 'agents');
+                    window.history.replaceState({}, '', `view_details.html?id=${foundAgent.uuid}&category=agents&page=${page}`);
+                    return;
+                }
+
+                const foundWeapon = weaponsRes.data.find(w => w.displayName.toLowerCase().includes(query));
+                if (foundWeapon) {
+                    renderItemData(foundWeapon, 'weapons');
+                    window.history.replaceState({}, '', `view_details.html?id=${foundWeapon.uuid}&category=weapons&page=${page}`);
+                    return;
+                }
+
+                const foundMap = mapsRes.data.find(m => m.displayName.toLowerCase().includes(query));
+                if (foundMap) {
+                    renderItemData(foundMap, 'maps');
+                    window.history.replaceState({}, '', `view_details.html?id=${foundMap.uuid}&category=maps&page=${page}`);
+                    return;
+                }
+
+                elName.innerHTML = `<span class="text-danger">"${elSearch.value}" Not Found</span>`;
+                elImage.src = "";
+                elBgImage.src = "";
+                elType.innerHTML = "";
+                elDescription.innerHTML = "";
+                elExtraContent.innerHTML = "";
+                hideSkins();
+            } catch (error) {
+                console.error('Search failed:', error);
+            }
+        };
+
+        elSearch.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchAndDisplayItem();
+            }
+        });
+
+        if (id != null) {
+            fetchAndDisplayById(id, category);
+        } else {
+            elName.innerHTML = `<span class="text-danger">Invalid Item ID</span>`;
+        }
+    </script>
+</body>
+
+</html>

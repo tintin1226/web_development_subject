@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VALORANT API Dex</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="valorant.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container-fluid val-header mb-4">
+    <div class="row">
+      <div class="col d-flex align-items-center justify-content-between gap-3 px-4 py-3">
+        <div class="val-brand">
+          <h1 class="display-8 val-brand-title">VALORANT API</h1>
+          <p class="val-brand-subtitle mb-0">Explore agents, weapons, and maps</p>
+        </div>
+        <img class="val-logo"
+          src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cbf4460132cdfeb2a97fad5f9dd25ba0bc058f76-128x128.png?accountingTag=VAL"
+          alt="VALORANT logo">
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5">
+    <div class="row">
+      <!-- Sidebar Navigation Menu -->
+      <div class="col-md-3 mb-4">
+        <div class="card p-3">
+          <h5 class="mb-3 px-2 fs-3">Categories</h5>
+          <div class="list-group list-group-flush">
+            <button class="list-group-item list-group-item-action active" id="nav-agents"
+              onclick="switchCategory('agents')">
+              Agents
+            </button>
+            <button class="list-group-item list-group-item-action" id="nav-weapons" onclick="switchCategory('weapons')">
+              Weapons
+            </button>
+            <button class="list-group-item list-group-item-action" id="nav-maps" onclick="switchCategory('maps')">
+              Maps
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="col-md-9">
+        <!-- Search Bar Section -->
+        <div class="card p-3 mb-3">
+          <div class="d-flex flex-row">
+            <input type="text" placeholder="Search any Agent, Weapon, or Map"
+              class="form-control" id="searchInput">
+            <div class="btn btn-primary px-4" onclick="globalSearch()" role="button">
+              Search
+            </div>
+          </div>
+        </div>
+
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item"><a class="page-link" role="button" onclick="prev()">Previous</a></li>
+            <li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+            <li class="page-item"><a class="page-link" role="button" onclick="next()">Next</a></li>
+          </ul>
+        </nav>
+
+        <div class="row" id="parent">
+          <!-- Items injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <script>
+    // Iconic color for each agent (agents not listed get a unique color generated from their name)
+    const agentColors = {
+      'Jett': '#A8DFFF', 'Phoenix': '#FF6A2B', 'Sage': '#4DF5CF', 'Sova': '#1E6BFF',
+      'Brimstone': '#C98A3A', 'Viper': '#2FD45A', 'Cypher': '#D5DAE2', 'Reyna': '#D93DFF',
+      'Killjoy': '#FFE94A', 'Breach': '#FF9E7A', 'Omen': '#6F7BFF', 'Raze': '#FFB020',
+      'Skye': '#8FD6A8', 'Yoru': '#2B3FD6', 'Astra': '#B04DFF', 'KAY/O': '#7E8CA3',
+      'Chamber': '#E8C879', 'Neon': '#00C8FF', 'Fade': '#1F8A9C', 'Harbor': '#E0A12E',
+      'Gekko': '#A8FF3E', 'Deadlock': '#C9B8A0', 'Iso': '#9A6BFF', 'Clove': '#FF6FB5',
+      'Vyse': '#8C9AAE', 'Tejo': '#E07B39', 'Waylay': '#FFD23F'
+    };
+    const VAL_RED = '#FF4655';
+
+    function fallbackColor(name) {
+      let hue = 0;
+      for (const ch of name) hue = (hue * 31 + ch.charCodeAt(0)) % 360;
+      const ctx = document.createElement('canvas').getContext('2d');
+      ctx.fillStyle = `hsl(${hue}, 85%, 60%)`;
+      return ctx.fillStyle;
+    }
+
+    function capitalizeFirstLetter(str) {
+      if (!str) return str;
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    let currentCategory = urlParams.get('category') || 'agents';
+    let page = parseInt(urlParams.get('page')) || 1;
+    const perPageLoad = 5;
+    let totalItems = 0;
+    let lastPage = 1;
+    let itemList = [];
+    let filteredList = [];
+
+    // Cache to hold fetched data for all categories so global search is instant
+    const cache = {
+      agents: null,
+      weapons: null,
+      maps: null
+    };
+
+    const elParent = document.getElementById("parent");
+    const elCurrentPage = document.getElementById("currentPage");
+    const elSearch = document.getElementById("searchInput");
+
+    const endpoints = {
+      agents: 'https://valorant-api.com/v1/agents?isPlayableCharacter=true',
+      weapons: 'https://valorant-api.com/v1/weapons',
+      maps: 'https://valorant-api.com/v1/maps'
+    };
+
+    const updateSidebarUI = () => {
+      ['agents', 'weapons', 'maps'].forEach(cat => {
+        const btn = document.getElementById(`nav-${cat}`);
+        if (cat === currentCategory) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    };
+
+    const switchCategory = (category) => {
+      currentCategory = category;
+      page = 1;
+      updateSidebarUI();
+      fetchData();
+    };
+
+    const renderPage = () => {
+      elParent.innerHTML = '';
+      elCurrentPage.innerHTML = page;
+
+      const startIndex = (page - 1) * perPageLoad;
+      const endIndex = startIndex + perPageLoad;
+      const currentItems = filteredList.slice(startIndex, endIndex);
+
+      if (currentItems.length === 0) {
+        elParent.innerHTML = `<div class="col-12 text-center text-muted py-4">No results found.</div>`;
+        return;
+      }
+
+      currentItems.forEach((item, index) => {
+        let name = item.displayName;
+        let id = item.uuid;
+        let picture = item.displayIcon;
+        let logoHtml = '';
+        let accent = '#FF4655';
+
+        if (currentCategory === 'agents') {
+          const roleName = item.role ? item.role.displayName : 'Unknown';
+          accent = agentColors[name] || fallbackColor(name);
+          if (item.role && item.role.displayIcon) {
+            logoHtml = `<img src="${item.role.displayIcon}" alt="${roleName}" style="width: 28px; height: 28px; filter: brightness(0) invert(1); object-fit: contain;" title="${roleName}">`;
+          } else {
+            logoHtml = `<span class="text-white small fw-semibold">${capitalizeFirstLetter(roleName)}</span>`;
+          }
+        } else if (currentCategory === 'weapons') {
+          accent = VAL_RED;
+          if (item.killStreamIcon) {
+            logoHtml = `<img src="${item.killStreamIcon}" alt="Weapon" style="max-height: 24px; max-width: 80px; filter: brightness(0) invert(1); object-fit: contain;" title="Weapon">`;
+          } else {
+            logoHtml = `<span class="text-white small fw-semibold">Weapon</span>`;
+          }
+        } else if (currentCategory === 'maps') {
+          picture = item.splash || item.listViewIcon;
+          accent = VAL_RED;
+          logoHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="white" class="bi bi-map-fill" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5.795a.5.5 0 0 0-.353.146L7 2.793 2.646.146A.5.5 0 0 0 2.293 0H.5a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h5.795a.5.5 0 0 0 .353-.146L9 11.207l4.354 2.647a.5.5 0 0 0 .353.146H15.5a.5.5 0 0 0 .5-.5v-13zm-3.75 3.354a.5.5 0 0 0-.708 0L9 6.293V11.5a.5.5 0 0 0 .708 0l3.5-2.293V3.854zM8 4.5a.5.5 0 0 0-.708 0L3.792 6.793V11.5a.5.5 0 0 0 .708 0L8 9.207V4.5z"/></svg>`;
+        }
+
+        elParent.innerHTML += `
+          <div class="col-12 my-1">
+            <div class="glow-wrap" tabindex="0" role="link" 
+                style="--accent: ${accent}; animation-delay: ${index * 0.07}s;"
+                onclick="window.location.href='view_details.html?id=${id}&category=${currentCategory}&page=${page}'"
+                onkeydown="if(event.key==='Enter'){this.click();}">
+              <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                  <div class="item-icon">
+                    <img class="w-100 object-fit-contain p-1" src="${picture}" alt="${name}">
+                  </div>
+                  <div class="mx-4 item-name">${name}</div>
+                </div>
+                <div class="pe-2">
+                  ${logoHtml}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    };
+
+    const fetchData = async () => {
+      try {
+        if (!cache[currentCategory]) {
+          elParent.innerHTML = `<div class="text-center py-5"><div class="spinner-border text-danger" role="status"></div></div>`;
+          const response = await fetch(endpoints[currentCategory]);
+          const result = await response.json();
+          cache[currentCategory] = result.data;
+        }
+
+        itemList = cache[currentCategory];
+
+        const query = elSearch.value.toLowerCase().trim();
+        if (query) {
+          filteredList = itemList.filter(item => item.displayName.toLowerCase().includes(query));
+        } else {
+          filteredList = itemList;
+        }
+
+        totalItems = filteredList.length;
+        lastPage = Math.ceil(totalItems / perPageLoad) || 1;
+
+        renderPage();
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+        elParent.innerHTML = `<div class="alert alert-danger">Failed to load data.</div>`;
+      }
+    };
+
+    const globalSearch = async () => {
+      const query = elSearch.value.toLowerCase().trim();
+      if (!query) {
+        fetchData();
+        return;
+      }
+
+      try {
+        elParent.innerHTML = `<div class="text-center py-5"><div class="spinner-border text-danger" role="status"></div></div>`;
+
+        if (!cache.agents) {
+          const res = await fetch(endpoints.agents);
+          const data = await res.json();
+          cache.agents = data.data;
+        }
+        if (!cache.weapons) {
+          const res = await fetch(endpoints.weapons);
+          const data = await res.json();
+          cache.weapons = data.data;
+        }
+        if (!cache.maps) {
+          const res = await fetch(endpoints.maps);
+          const data = await res.json();
+          cache.maps = data.data;
+        }
+
+        const foundAgent = cache.agents.find(a => a.displayName.toLowerCase().includes(query));
+        if (foundAgent) {
+          currentCategory = 'agents';
+          updateSidebarUI();
+          itemList = cache.agents;
+          filteredList = itemList.filter(item => item.displayName.toLowerCase().includes(query));
+          page = 1;
+          totalItems = filteredList.length;
+          lastPage = Math.ceil(totalItems / perPageLoad) || 1;
+          renderPage();
+          return;
+        }
+
+        const foundWeapon = cache.weapons.find(w => w.displayName.toLowerCase().includes(query));
+        if (foundWeapon) {
+          currentCategory = 'weapons';
+          updateSidebarUI();
+          itemList = cache.weapons;
+          filteredList = itemList.filter(item => item.displayName.toLowerCase().includes(query));
+          page = 1;
+          totalItems = filteredList.length;
+          lastPage = Math.ceil(totalItems / perPageLoad) || 1;
+          renderPage();
+          return;
+        }
+
+        const foundMap = cache.maps.find(m => m.displayName.toLowerCase().includes(query));
+        if (foundMap) {
+          currentCategory = 'maps';
+          updateSidebarUI();
+          itemList = cache.maps;
+          filteredList = itemList.filter(item => item.displayName.toLowerCase().includes(query));
+          page = 1;
+          totalItems = filteredList.length;
+          lastPage = Math.ceil(totalItems / perPageLoad) || 1;
+          renderPage();
+          return;
+        }
+
+        elParent.innerHTML = `<div class="col-12 text-center text-muted py-4">No matching agents, weapons, or maps found for "${elSearch.value}".</div>`;
+      } catch (error) {
+        console.error('Global search failed:', error);
+      }
+    };
+
+    elSearch.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        globalSearch();
+      }
+    });
+
+    function prev() {
+      page -= 1;
+      if (page < 1) {
+        page = lastPage;
+      }
+      renderPage();
+    }
+
+    function next() {
+      page += 1;
+      if (page > lastPage) {
+        page = 1;
+      }
+      renderPage();
+    }
+
+    updateSidebarUI();
+    fetchData();
+  </script>
+</body>
+
+</html>
