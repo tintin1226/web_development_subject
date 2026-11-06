@@ -313,22 +313,30 @@
             <p class="project-text">A page that reads its content from a JSON list and uses JavaScript to render it as cards on the screen.</p>
             <a class="project-btn" href="Activity_2/json_activity.html">Open project</a>
           </div>
+          
         </article>
 
-        <!--
-          To add the next project, copy the whole <article> above and change:
-            - the iframe src and title
-            - the heading (Activity 3: Name)
-            - the description
-            - the button href
-        -->
+        <article class="project-card">
+          <div class="project-preview">
+            <iframe
+              src="Activity_3/api_activity.html"
+              title="Preview of Activity 3: API Activity"
+              loading="lazy"
+              tabindex="-1"></iframe>
+          </div>
+          <div class="project-details">
+            <h2 class="project-title">Activity 3: API Activity</h2>
+            <p class="project-text">A page that fetches its content from a REST API and uses JavaScript to render it as cards on the screen.</p>
+            <a class="project-btn" href="Activity_3/api_activity.html">Open project</a>
+          </div>
+          
+        </article>
 
       </div>
     </div>
   </main>
 
   <script>
-    // Scale each 1280x720 iframe so the full page fits inside its card preview.
     (function () {
       var DESIGN_WIDTH = 1280;
       var previews = document.querySelectorAll('.project-preview');
